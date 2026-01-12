@@ -18,7 +18,7 @@
 
 //    void Update()
 //    {
-//        if (Keyboard.current.spacekey.isPressed)
+//        if (Keyboard.current.spaceKey.isPressed)
 //        {
 //            Instantiate(spawObject, transform.positon, transform.rotation);
 //        }
