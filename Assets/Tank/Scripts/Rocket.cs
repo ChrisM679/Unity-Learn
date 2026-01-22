@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-public class Rocket : MonoBehaviour
+public class Projectile : Ammo
 {
     [SerializeField] GameObject effect;
     [SerializeField] float speed = 1.0f;
@@ -20,7 +20,12 @@ public class Rocket : MonoBehaviour
 
     void OnCollisionEnter(Collision collision)
     {
-        Destroy(gameObject);
+        Health health = collision.gameObject.GetComponent<Health>();
+        if (health != null) 
+        { 
+            health.OnDamage(dmg);
+        }
         Instantiate(effect, transform.position, Quaternion.identity);
+        Destroy(gameObject);
     }
 }
