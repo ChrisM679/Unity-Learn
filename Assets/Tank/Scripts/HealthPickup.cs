@@ -9,11 +9,12 @@ public class HealthPickup : MonoBehaviour
     {
         if (other.TryGetComponent(out Health health))
         {
-            health.OnHeal(amount);
+            health.onHeal(amount);
             if (pickupEffect != null)
             {
                 Instantiate(pickupEffect, transform.position, Quaternion.identity);
             }
+            Debug.Log("Health pickup destroyed");
 
             Destroy(gameObject);
         }

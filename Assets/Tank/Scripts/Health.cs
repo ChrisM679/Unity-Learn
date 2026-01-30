@@ -1,57 +1,60 @@
 using UnityEngine;
+using UnityEngine.Events;
 
 public class Health : MonoBehaviour
 {
-    [SerializeFeild] float maxHp = 10;
-    [SerializeFeild] GameObject hitEffect;
-    [SerializeFeild] GameObject destroyEffect;
+    [SerializeField] float maxHealth = 10;
+    [SerializeField] GameObject hitEffect;
+    [SerializeField] GameObject destroyEffect;
+    [SerializeField] UnityEvent destroyEvent;
 
-    public float HpCurrent 
-    {
+    public float CurrentHealth {
         get { return health; }
-        set { health = Mathf.Clamp(value, 0, maxHp); } 
+        set { health = Mathf.Clamp(value, 0, maxHealth); }
     }
 
-    public float CurrentHpPrecent
+    public float CurrentHealthPercent
     {
-
+        get { return CurrentHealth / maxHealth; }
     }
 
     float health = 0;
     bool destroyed = false;
 
+    // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        HpCurrent = maxHp;
+        CurrentHealth = maxHealth;
     }
 
-    public void OnDmg(float dmg)
+    public void onDamage(float damage)
     {
+        Debug.Log("Damaged");
         if (destroyed) return;
 
-        HpCurrent -= dmg;
+        CurrentHealth -= damage;
+        if (CurrentHealth <= 0) destroyed = true;
 
-        if (HpCurrent <= 0 ) destroyed = true;
-
-        if (!destroyed && hitEffect != null)
-        { 
+        if(!destroyed && hitEffect != null)
+        {
             Instantiate(hitEffect, transform.position, Quaternion.identity);
         }
 
-        if (destroyed)
+        if(destroyed)
         {
             TankGameManager.Instance.Score += 100;
-
-            if (destroyed != null)
+            if(destroyEffect != null)
             {
                 Instantiate(destroyEffect, transform.position, Quaternion.identity);
             }
+            destroyEvent?.Invoke();
+
             Destroy(gameObject);
         }
     }
 
-    public void OnHeal(float amount)
+    public void onHeal(float amount)
     {
-        HpCurrent += amount;
+        CurrentHealth += amount;
     }
 }

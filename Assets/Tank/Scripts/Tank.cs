@@ -1,6 +1,6 @@
 using UnityEngine;
-using UnityEngine.InputSystem;
 using UnityEngine.UI;
+using UnityEngine.InputSystem;
 
 public class Tank : MonoBehaviour
 {
@@ -10,12 +10,15 @@ public class Tank : MonoBehaviour
     [SerializeField] GameObject ammo;
     [SerializeField] GameObject muzzle;
 
-    [SerializeField] Slider Hp;
+    [SerializeField] Slider healthBar;
 
     InputAction moveAction;
     InputAction attackAction;
 
     Health health;
+
+    public delegate void TankDestroyedHandler();
+    public event TankDestroyedHandler OnTankDestroyed;
 
     void Start()
     {
@@ -24,13 +27,20 @@ public class Tank : MonoBehaviour
 
         attackAction.started += ctx => OnAttack();
 
-        health = GetComponednt<Health>();
+        health = GetComponent<Health>();
+
+        if (health == null)
+            Debug.LogError("Health component missing!");
+        if (healthBar == null)
+            Debug.LogError("HealthBar is not assigned!");
     }
 
     void Update()
     {
         // direction (forward/backward movement)
         float direction = moveAction.ReadValue<Vector2>().y;
+        //if (Keyboard.current.wKey.isPressed) direction = +1.0f;
+        //if (Keyboard.current.sKey.isPressed) direction = -1.0f;
 
         // translate (move) the tank in the forward direction
         // moves the tank in the relative direction (direction tank is facing)
@@ -42,11 +52,27 @@ public class Tank : MonoBehaviour
         // rotate the tank, around the up axis (y-axis)
         transform.Rotate(Vector3.up * rotation * rotationSpeed * Time.deltaTime);
 
-        Hp.value = health.CurrentHpPrcent;
+        // check if "Fire" key is pressed, if so instantiate the ammo (rocket)
+        // ammo is instantiate at the muzzle position and rotation
+        //if (attackAction.WasPressedThisFrame())
+        //{
+        // Instantiate(ammo, muzzle.transform.position, muzzle.transform.rotation);
+        //}
+
+        healthBar.value = health.CurrentHealthPercent;
     }
 
     void OnAttack()
     {
         Instantiate(ammo, muzzle.transform.position, muzzle.transform.rotation);
+    }
+
+    public void DestroyTank()
+    {
+        // Invoke the event when the tank is destroyed
+        OnTankDestroyed?.Invoke();
+
+        // Destroy the tank GameObject
+        Destroy(gameObject);
     }
 }

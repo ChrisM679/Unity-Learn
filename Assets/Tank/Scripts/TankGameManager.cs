@@ -1,46 +1,68 @@
 using UnityEngine;
 using TMPro;
+using System.Collections;
+using UnityEngine.SceneManagement;
 
 public class TankGameManager : MonoBehaviour
 {
     [SerializeField] GameObject titlePanel;
+    [SerializeField] GameObject gameWinPanel;
+    [SerializeField] GameObject gameOverPanel;
     [SerializeField] TMP_Text scoreText;
     [SerializeField] bool debug = false;
 
     static TankGameManager instance;
-    public static TankGameManager Instance 
-    { 
-        get 
-        { 
-            if (instance == null)
-            {
-                instance = new TankGameManager();
+    public static TankGameManager Instance {
+        get {
+            if (instance == null) instance = FindFirstObjectByType<TankGameManager>();
+            return instance;
             }
-            return instance; 
-        } 
-    }
+        }
 
-    public int Score = { get; set; } = 0;
-
+    public int Score { get; set; } = 0;
     void Start()
     {
+        //This affects the speed at which the time passes in the game. This effectively pauses the game.
         Time.timeScale = (debug) ? 1.0f : 0.0f;
         titlePanel.SetActive(!debug);
+        gameWinPanel.SetActive(false);
+        gameOverPanel.SetActive(false);
     }
 
     void Update()
     {
-        scoreText.text = Score.ToString("00000")
+        scoreText.text = Score.ToString("0000");
     }
 
     public void OnGameStart()
     {
+        print("start game");
         titlePanel.SetActive(false);
         Time.timeScale = 1.0f;
     }
 
     public void OnGameWin()
     {
-        Time.timeScake = 0.0f;
+        gameWinPanel.SetActive(true);
+        Time.timeScale = 0.0f;
+    }
+
+    public void OnGameRestart()
+    {
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+        Destroy(gameObject);
+    }
+
+    public void OnGameOver()
+    {
+        gameOverPanel.SetActive(true);
+        //StartCoroutine(ResetGameCR(2.0f));
+    }
+
+    IEnumerator ResetGameCR(float time)
+    {
+        yield return new WaitForSeconds(time);
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+        titlePanel.SetActive(false);
     }
 }
